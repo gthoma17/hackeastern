@@ -245,3 +245,6 @@ def createEvals(cursor):
 	for thing in thingsToMake:
 		thisThingAdd = addThing.format(sanitize(thing[0]), sanitize(thing[1]), sanitize(thing[2]), sanitize(thing[3]), sanitize(thing[4]), sanitize(thing[5]), sanitize(thing[6]), sanitize(thing[7]), sanitize(thing[8]), sanitize(thing[9]), sanitize(thing[10]), sanitize(thing[11]), sanitize(thing[12]), sanitize(thing[13]), sanitize(thing[14]), sanitize(thing[15]), sanitize(thing[16]), sanitize(thing[17]), sanitize(thing[18]), sanitize(thing[19]))
 		cursor.execute(thisThingAdd)
+
+if __name__ == '__main__':
+	main()
