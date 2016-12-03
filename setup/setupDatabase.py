@@ -246,5 +246,31 @@ def createEvals(cursor):
 		thisThingAdd = addThing.format(sanitize(thing[0]), sanitize(thing[1]), sanitize(thing[2]), sanitize(thing[3]), sanitize(thing[4]), sanitize(thing[5]), sanitize(thing[6]), sanitize(thing[7]), sanitize(thing[8]), sanitize(thing[9]), sanitize(thing[10]), sanitize(thing[11]), sanitize(thing[12]), sanitize(thing[13]), sanitize(thing[14]), sanitize(thing[15]), sanitize(thing[16]), sanitize(thing[17]), sanitize(thing[18]), sanitize(thing[19]))
 		cursor.execute(thisThingAdd)
 
-if __name__ == '__main__':
-	main()
+def tblExists(name, cursor):
+	search_tbl = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = {0}"
+	search_tbl = search_tbl.format(sanitize(name))
+	cursor.execute(search_tbl)
+	if cursor.fetchone()[0] == 1:
+		return True
+	else:
+		return False
+def tblEmpty(name, cursor):
+	query = """SELECT * from {0} limit 1"""
+	entry = cursor.execute(query.format(name))
+	if not entry:
+		return True
+	else:
+		return False
+def makeNewApiKey(cursor):
+	potentialApiKey = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(256))
+	query = """SELECT * from jobAppUsers WHERE apiKey={0}"""
+	entry = cursor.execute(query.format(sanitize(potentialApiKey)))
+	if not entry:
+		return potentialApiKey
+	else:
+		return makeNewApiKey()
+def sanitize(inString):
+	return "'"+(str(inString).replace("'","\\'").rstrip().lstrip())+"'"
+
+if __name__ == "__main__":
+	main()	
