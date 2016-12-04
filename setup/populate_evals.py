@@ -27,7 +27,8 @@ def main():
 	finally:
 		cursor.execute('use '+DATABASE)	
 	emptyEvalTbl(cursor)
-	parseCSV(cursor)	
+	parseCSV(cursor)
+	updateNames(cursor)	
 	#we're done here. close up shop
 	db_connection.commit()
 	cursor.close()
@@ -61,6 +62,19 @@ def insertEvalRecord(cursor, csvRow):
 	query = addRecord.format(sanitize(csvRow[0]),sanitize(csvRow[1]),sanitize(csvRow[2]),sanitize(csvRow[3]),sanitize(csvRow[4]),sanitize(csvRow[5]),sanitize(csvRow[6]),sanitize(csvRow[7]),sanitize(csvRow[8]),sanitize(csvRow[9]),sanitize(csvRow[10]),sanitize(csvRow[11]),sanitize(csvRow[12]),sanitize(csvRow[13]),sanitize(csvRow[14]),sanitize(csvRow[15]),sanitize(csvRow[16]),sanitize(csvRow[17]), sanitize(instAvg), sanitize(crseAvg))
 	cursor.execute(query)
 
+def updateNames(cursor):
+	nameFile = open("name_equates.txt","r")
+	for line in nameFile.readlines():
+    	names = line.split(";")
+    	names[0] = name[0].split(",")
+    	names[1] = name[1].split(",")
+		updateRecord = """
+		UPDATE  evals
+		SET (fname, lname)
+		VALUES ({0}, {1})
+		WHERE fname={2} AND lname={2}
+		"""
+		query = updateRecord.format(sanitize(names[0][0]),sanitize(names[0][1]),sanitize(names[1][0]),sanitize(names[1][1]))
 
 
 def sanitize(inString):

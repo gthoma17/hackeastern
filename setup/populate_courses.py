@@ -80,6 +80,7 @@ def addStartTime(cursor, csvRow, eval_id, dayNum):
 	WHERE course_id={6}
 	"""
 	query = updateRecord.format(setString,sanitize(csvRow[7]),sanitize(csvRow[8]),sanitize(csvRow[9]),sanitize(csvRow[20]),sanitize(csvRow[21]),eval_id)
+	cursor.execute(query)
 def makeScore(cursor, prof_fname, prof_lname, course_pfix, course_num):
 	mult = 0
 	runningScore = 0
