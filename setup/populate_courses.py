@@ -60,8 +60,9 @@ def insertCourseRecord(cursor, csvRow):
     VALUES
     	(NULL, {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15}, {16}, {17}, {18}, {19}, {20}, {21}, {22}, {23}, {24}, {25})
 	"""
-	#print "Submitting: "+query
+	
 	score = makeScore(cursor, sanitize(csvRow[19]), sanitize(csvRow[20]), sanitize(csvRow[1]), sanitize(csvRow[2]))
+	#print "Submitting: "+query
 	query = addRecord.format(sanitize(csvRow[0]),sanitize(csvRow[1]),sanitize(csvRow[2]),sanitize(csvRow[3]),sanitize(csvRow[4]),sanitize(csvRow[5]),sanitize(csvRow[6]),sanitize(csvRow[7]),sanitize(csvRow[8]),sanitize(csvRow[9]),sanitize(csvRow[10]),sanitize(csvRow[11]),sanitize(csvRow[12]),sanitize(csvRow[13]),sanitize(csvRow[14]),sanitize(csvRow[15]),sanitize(csvRow[16]),sanitize(csvRow[17]), sanitize(csvRow[18]), sanitize(csvRow[19]), sanitize(csvRow[20]), sanitize(csvRow[21]), sanitize(csvRow[22]), sanitize(csvRow[23]), sanitize(csvRow[24]), sanitize(score))
 	return cursor.execute(query)
 
@@ -80,36 +81,41 @@ def addStartTime(cursor, csvRow, eval_id, dayNum):
 	WHERE course_id={6}
 	"""
 	query = updateRecord.format(setString,sanitize(csvRow[7]),sanitize(csvRow[8]),sanitize(csvRow[9]),sanitize(csvRow[20]),sanitize(csvRow[21]),eval_id)
-	cursor.execute(query)
+	#cursor.execute(query)
 def makeScore(cursor, prof_fname, prof_lname, course_pfix, course_num):
+	#print "Scoring: "+prof_fname+prof_lname+course_pfix+course_num
 	mult = 0
 	runningScore = 0
 	search_prof_and_course = ("SELECT * FROM evals WHERE fname={0} AND lname={1} AND department={2} AND course={3}")
 	search_prof = ("SELECT * FROM evals WHERE fname={0} AND lname={1}")
 	search_course = ("SELECT * FROM evals WHERE department={0} AND course={1}")
 
-	query = search_prof_and_course.format(sanitize(prof_fname),sanitize(prof_lname),sanitize(course_pfix),sanitize(course_num))
+	#print "Scoring: "+prof_fname+prof_lname+course_pfix+course_num
+
+	if prof_fname == "TBA":
+		return -1
+	query = search_prof_and_course.format(prof_fname,prof_lname,course_pfix,course_num)
+	#print "query1: "+query
 	if cursor.execute(query):
 		tblRow = cursor.fetchone()
 		while tblRow is not None:
-			runningScore = runningScore + (tblRow.inst_avg * 5)
+			#print tblRow
+			runningScore = runningScore + (float(tblRow[9]) * 5)
 			mult = mult + 5
 			tblRow = cursor.fetchone()
-	query = search_prof.format(sanitize(prof_fname),sanitize(prof_lname))
+	query = search_prof.format(prof_fname,prof_lname)
+	#print "query2: "+query
 	if cursor.execute(query):
 		tblRow = cursor.fetchone()
 		while tblRow is not None:
-			runningScore = runningScore + (tblRow.inst_avg * 3)
+			runningScore = runningScore + (float(tblRow[9]) * 3)
 			mult = mult + 3
 			tblRow = cursor.fetchone()
-	query = search_course.format(sanitize(course_pfix),sanitize(course_num))
-	if cursor.execute(query):
-		tblRow = cursor.fetchone()
-		while tblRow is not None:
-			runningScore = runningScore + tblRow.crse_avg
-			mult = mult + 1
-			tblRow = cursor.fetchone()
-	return (runningScore / mult)
+	if mult != 0:
+		print "Scored: "+str((runningScore / mult))+" : "+prof_fname+prof_lname+course_pfix+course_num
+		return (runningScore / mult)
+	else:
+		return -1
 
 def sanitize(inString):
 	return "'"+(str(inString).replace("'","\\'").rstrip().lstrip())+"'"

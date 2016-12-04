@@ -44,10 +44,12 @@ def parseCSV(cursor):
 		for row in evalReader:
 			#if row has grade, insert into database
 			if len(row) != 18: #record doesn't have eval data
-				print "Skipping: "+row[5]+row[2]+row[3]+row[4]+" numcols: "+str(len(row))
-				pass
+				try:
+					print "Skipping: "+row[5]+row[2]+row[3]+row[4]+" numcols: "+str(len(row))
+				except IndexError:
+					continue				
 			else:
-				print "Adding: "+row[5]+row[2]+row[3]+row[4]
+				#print "Adding: "+row[5]+row[2]+row[3]+row[4]
 				insertEvalRecord(cursor, row)
 def insertEvalRecord(cursor, csvRow):
 	addRecord = """
@@ -65,17 +67,21 @@ def insertEvalRecord(cursor, csvRow):
 def updateNames(cursor):
 	nameFile = open("name_equates.txt","r")
 	for line in nameFile.readlines():
-    	names = line.split(";")
-    	names[0] = name[0].split(",")
-    	names[1] = name[1].split(",")
+		print "updateing: "+line
+		names = line.split(";")
+		new_fname = names[0].split(",")[0]
+		new_lname = names[0].split(",")[1]
+		old_fname = names[1].split(",")[0]
+		old_lname = names[1].split(",")[1]
+
 		updateRecord = """
 		UPDATE  evals
-		SET (fname, lname)
-		VALUES ({0}, {1})
-		WHERE fname={2} AND lname={2}
+		SET fname={0}, lname={1}
+		WHERE fname={2} AND lname={3}
 		"""
-		query = updateRecord.format(sanitize(names[0][0]),sanitize(names[0][1]),sanitize(names[1][0]),sanitize(names[1][1]))
-
+		query = updateRecord.format(sanitize(new_fname),sanitize(new_lname),sanitize(old_fname),sanitize(old_lname))
+		cursor.execute(query)
+		#print "Ran: "+query
 
 def sanitize(inString):
 	return "'"+(str(inString).replace("'","\\'").rstrip().lstrip())+"'"
