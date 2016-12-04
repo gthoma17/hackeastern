@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Demo Ajax machine</title>
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+	$.get( "http://gat.im:9001/courses/w17/cosc/211", function( ajax_data ) {
+		ajax_data = JSON.parse(ajax_data);
+		console.log(ajax_data);
+		for (var i = 0; i < ajax_data.length; i++) {
+			console.log(ajax_data[i]);
+			$( "#resultTable tr:last" ).after( "<tr><td>"+ajax_data[i].crn+"</td><td>"+ajax_data[i].grade+"</td></tr>" );
+    	}
+
+	});
+</script>
+<body>
+	<table id="resultTable">
+  <tbody>
+    <tr>
+    	<td>CRN</td>
+    	<td>Grade</td>
+    	<td>Col</td>
+    	<td>Titles</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
