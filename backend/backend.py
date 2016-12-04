@@ -1,6 +1,8 @@
 import web, ConfigParser, json, string, random, socket, urllib, datetime, boto, base64
 from os import path
 from identitytoolkit import gitkitclient
+import plotly.plotly as py
+import plotly.graph_objs as go
 
 #prepare to read config
 config = ConfigParser.ConfigParser()
@@ -63,6 +65,7 @@ class eval:
 		ret['c'] = runningC / mult
 		ret['d'] = runningD / mult
 		ret['e'] = runningE / mult
+		
 		return json.dumps(ret)
 class w17:
 	def GET(self):

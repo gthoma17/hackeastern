@@ -2,15 +2,19 @@
 <html>
 	<head>
 		<title>Eastern Michigan University Course Registration</title>
+		<link rel="stylesheet" type="text/css" href="style.css"/>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
 		<script src="./jquery.dynatable.js"></script>
 		<link rel="stylesheet" type="text/css" href="./jquery.dynatable.css"/>
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	</head>
 	<body>
 		<div id="page-wrapper">
-			<div class="row">
-				<div class="col-lg-12">
+			<div>
+				<div>
 					<h1 class="page-header">ClassE</h1>
 					 Prefix:  <select id="prefix">   
 							<option value="all">All</option>
@@ -167,16 +171,17 @@
 			</div>
 			<hr>
 			<!-- /.row -->
-			<div  id="table-holder" class="row">
+			<div  id="table-holder">
 			</div>
 			<div id="table-template" style="display:none">
-				<div class="col-lg-8 col-offset-2">
-					<div class="panel panel-primary">
-						<div class="row">
-	            			<div class="col-md-offset-8 col-md-8">
+				<div>
+					<div>
+						<div>
+	            			<div>
 								<table id="course-table">
 									<thead>
-										<tr class ="table-head-row">
+										<tr class="table-head-row">
+											<th>More Data</th>
 											<th>CRN</th>
 											<th>Subject</th>
 											<th>Course</th>
@@ -201,18 +206,84 @@
 						</div>
 					</div>
 				</div>
+				<div class="modal fade" id="additional-data" tabindex="-1" role="dialog" aria-labelledby="additional-data-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="additional-data-label">Grade Distribution</h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 			</div>
 			
 			<div  id="loading-holder" class="row">	
 				<br \>
-				<h2>Loading... This make take a minute</h2>
+				<h2>Loading... This may take a minute</h2>
 			</div>
 		</div>
 	</body>
 	<script type="text/javascript">
+		
+		
+		function drawBasic(btn) {
+			console.log("In drawBasic");
+			$(".modal-body").html("")
+			close = btn.parentElement.parentElement;
+			$prof = close.children[11].textContent;
+			$first = $prof.replace(/ .*/,"");
+			$last = $prof.replace(/^\w* /,"");
+			$subj = close.children[2].textContent;
+			$crse = close.children[3].textContent;
+			getUrl = "http://gat.im:9001/eval/"+$first+"/"+$last+"/"+$subj+"/"+$crse;
+			$.get( getUrl, function(ajax_data) {
+				ajax_data = JSON.parse(ajax_data);
+				console.log(ajax_data);
+				tableStr = "<table id='modal-table'><thead><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead><tbody><tr><td>!A!</td><td>!B!</td><td>!C!</td><td>!D!</td><td>!E!</td></tr></tbody></table>"
+				console.log(typeof ajax_data.a)
+				thisTable = tableStr.replace("!A!", String(ajax_data.a).substring(0, 4)+"%");
+				thisTable = thisTable.replace("!B!", String(ajax_data.b).substring(0, 4)+"%");
+				thisTable = thisTable.replace("!C!", String(ajax_data.c).substring(0, 4)+"%");
+				thisTable = thisTable.replace("!D!", String(ajax_data.d).substring(0, 4)+"%");
+				thisTable = thisTable.replace("!E!", String(ajax_data.e).substring(0, 4)+"%");
+				$(".modal-body").html(thisTable)
+			});
+			
+			//$prof = close.children()[10].textContent;
+			//$first = $prof.replace(/ .*/,"");
+			//$last = $prof.replace(/^\w* /,"");
+			//$subj = close.children()[2].textContent;
+			//$crse = close.children()[3].textContent;
+			//$url = "http://gat.im:9001/eval/"+$first+"/"+$last+"/"+$subj+"/"+$crse;
+			//var jsonData = $.ajax({
+			//url: $url,
+			//dataType: "json",
+			//async: false
+			//}).responseText;
+			
+			//var data = new google.visualization.DataTable(jsonData);
+			
+			//var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+			//chart.draw(data, {width: 100, height: 100});
+		}
+	
+		
+		
 		function page_init() {
 			$("#table-holder").hide();
 			$("#loading-holder").hide();
+			$('#additional-data').on('shown.bs.modal', function () {
+			var $close = $(e.relatedTarget).closeset('tr');
+			console.log($close);
+			//google.load('visualization', '1', {'packages': ['corechart'], "callback": drawBasic(close)});
+			google.visualization.load("current", {packages:["corechart"]});
+			google.visualization.setOnLoadCallback(drawChart);
+		});
 		}
 		function populate_table(argument) {
 			$("#table-holder").html($("#table-template").html()) //reset table
@@ -244,7 +315,7 @@
     					records: formatted_ajax_data
   					}
 				});
-				console.log("showing table-holder")
+				//console.log("showing table-holder")
 				//$('#course-table > tbody  > tr').each(function(index, element) { //add data expander
 				//	$(this td:last).after("<td><button>More Info</button></td>")
 				//});
@@ -270,9 +341,10 @@
 				else {
 					ajax_data[i].classeRating = "No rating available";
 				}
+				ajax_data[i].moreData = "<button type='button' onclick='drawBasic(this);' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#additional-data'>[+]</button>";
 				//console.log(ajax_data[i]);
     		}
-    		console.log(ajax_data);
+    		//console.log(ajax_data);
     		return ajax_data;
 		}
 		page_init();
