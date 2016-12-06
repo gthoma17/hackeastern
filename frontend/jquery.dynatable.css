@@ -16,6 +16,7 @@ body {
 .page-header {
 	text-align: center;
 	color: #008080;
+  font-size: 40px;
 
 }
 .col-lg-12 {
@@ -123,7 +124,6 @@ th a:hover {
   color: #999;
 }
 
-
 /*Greg  starts here */
 @import "lesshat";
 
@@ -158,4 +158,10 @@ th a:hover {
 }
 #modal-table {
   width: 100%
+}
+#formholder{
+  width: 100%;
+}
+#formdiv {
+    text-align: center;
 }
